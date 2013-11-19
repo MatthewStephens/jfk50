@@ -36,7 +36,7 @@ scheduler = Rufus::Scheduler.new
 start_time=Time.now
 tweet_data=[]
 
-CSV.foreach("./TeletypeForTweeting.csv") do |row| 
+CSV.foreach("./TeletypeForTweeting.csv", { :col_sep => "\t" }) do |row| 
   tweet_data << row.to_csv.chop
 end
 tweet_data.shift # remove CSV header row
@@ -66,8 +66,15 @@ tweet_data.shift # remove CSV header row
 # tweet_data[23]=%q(UPR76,09:43:00,MRS. KENNEDY COULD BE SEEN ON THE FLOOR OF THE REAR SEAT WITH HER HEAD TOWARD THE PRESIDENT.)
 # tweet_data[24]=%q(UPR76,09:44:00,HR & FK1250P11/22CST)
 
-def parse(str)
-  one, two, three = str.split(',')
+def parse(row)
+  one, two, three = "", "", ""
+  match = row.match(/^([^,]*),([^,]*),(.*)$/)
+  if ! match.nil?
+    one = match[1] || ""
+    two = match[2] || ""
+    three = match[3] || ""
+  end
+  return one, two, three
 end
 
 def scheduler.handle_exception(job, exception)
@@ -88,15 +95,17 @@ tweet_data[0..24].each_with_index do |datum,index|
     content=build_chyron(timestamp,content) 
   end
   tweet_time = Time.parse(timestamp)
-  # kluge for testing at 11:36
-  tweet_time = tweet_time - ((2 * 60 * 60) + (15 * 60))
+  # kluge for testing at a different time
+  tweet_time = tweet_time - ((60 * 60))
   
   # see if we're already tweeting at this time
   if tweet_time > $last_timestamp
     # go ahead
+    $stdout.puts "Tweet at #{tweet_time} requested."
   else
     # move this up 1m, change counter
     tweet_time = tweet_time + 60
+    $stdout.puts "Tweet time bumped to #{tweet_time} (+1m)."
     $last_timestamp = tweet_time
   end
 
