@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
 
 gem 'rufus-scheduler'
-gem 'twitter'
-gem 't'
+gem 'twitter', '5.0.0.rc.1'
+gem 'typhoeus', '~> 0.3.3'
