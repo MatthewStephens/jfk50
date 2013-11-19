@@ -54,49 +54,59 @@ def build_chyron(timestamp, content)
   "You are following the UPI teletype as broadcast #{timestamp} November 22nd, 1963 #{$hashtags} #{$link_to_exhibit}"
 end
 
-$last_timestamp = Time.now
-tweet_data[0..24].each_with_index do |datum,index|
+@last_timestamp = Time.now
+@time_adjust = (200 * 60)
+
+tweet_data[0..90].each_with_index do |datum,index|
   next if datum.length < 5
   code,timestamp,content = parse(datum)
+  if timestamp == "" then timestamp = @last_timestamp.to_s end
 
   # header rows should be turned into tweet reminders
   if content == code
     content=build_chyron(timestamp,content) 
   end
+
+  $stdout.puts timestamp
   tweet_time = Time.parse(timestamp)
   # kluge for testing at a different time
-  tweet_time = tweet_time - ((60 * 60))
+  tweet_time = tweet_time + @time_adjust
   
   # see if we're already tweeting at this time
-  if tweet_time > $last_timestamp
+  if tweet_time > @last_timestamp
     # go ahead
-    $stdout.puts "Tweet at #{tweet_time} requested.\n"
+    $stdout.puts "Tweet at #{tweet_time} requested, marker is at #{@last_timestamp}. \n"
+    @last_timestamp = tweet_time unless not tweet_time.is_a?(Time)
   else
     # move this up 1m, change counter
-    tweet_time = tweet_time + 60
-    $stdout.puts "Tweet time bumped to #{tweet_time} (+1m).\n"
-    $last_timestamp = tweet_time
+    @last_timestamp = @last_timestamp + 15
+    tweet_time = @last_timestamp # 15s boost
+    $stdout.puts "Tweet time bumped to #{tweet_time} (+15s). Marker changed to match \n"
   end
 
   scheduler.at(tweet_time) do
     #Twitter.update(content)
-    client.update(content)
+    tweet = client.update(content)
+    id = tweet.id
+    brief = content[0..19]
     # could also try making a Twitter::Client and using #post('statuses/update' @content)
-    report = %Q(Tweet ##{index} scheduled for #{timestamp} #{tweet_time.to_s} runtime below)
-    $stdout.puts report, Time.now
+    report = %Q(Tweet ##{index} (#{brief}) id: #{id} scheduled for #{timestamp} #{tweet_time.to_s} runtime is \t)
+    $stdout.puts report, Time.now, "\n"
   end
 end
 
 scheduler.jobs.each {|job| 
-  $stdout.puts job.original
+  $stdout.puts "#{job.original}\n"
 }
 
 scheduler.at start_time do
   $stdout.puts "Starting at #{start_time}..."
 end
-scheduler.at '06:34:00' do
+scheduler.at Time.now do
   # do something at a given point in time
-  s="#{$0} it is now #{Time.now}. Starting in 2m..."
+  a,b,c = parse(tweet_data[0])
+  t = Time.parse(b) + @time_adjust
+  s="#{$0} it is now #{Time.now}. Starting at #{t.to_s}..."
   $stdout.puts s
 end
 
