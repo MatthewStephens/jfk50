@@ -69,9 +69,9 @@ def build_chyron(timestamp, content)
 end
 
 @last_timestamp = Time.now
-@time_adjust =  (120 * 60)
+@time_adjust =  (160 * 60)
 
-tweet_data[0..200].each_with_index do |datum,index|
+tweet_data[0..400].each_with_index do |datum,index|
   next if datum.length < 5
   code,timestamp,content = parse(datum)
 
