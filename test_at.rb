@@ -54,7 +54,7 @@ def parse(row)
   match = row.match(/^([^,]*),([^,]*),(.*)$/)
   if ! match.nil?
     one = match[1] || ""
-    two = match[2] || ""
+    two = match[2].gsub(/;/, ':') || ""
     three = match[3] || ""
   end
   return one, two, three
