@@ -13,10 +13,10 @@ $hashtags="&JFK50 &UVA"
 $link_to_exhibit="http://bit.ly/1cGRk6e"
 
 # first app
-CONSUMER_KEY="MtKiWMxQiGoMkerKq9blpg"
-CONSUMER_SECRET="ldBbmasgnqixO0XDoOmsRz218iMhyl3ubnvebbtxkpQ"
-ACCESS_TOKEN="2190727249-h0G0u3ZUbHRJ80qQIGekZG4mbP0bnzXhqvyGbNP"
-ACCESS_TOKEN_SECRET="q11BgBbI5ixbjHzJ80VeBiCnTZUGTC6olYCyH2O2Xuvus"
+CONSUMER_KEY="LwmgdHnaGllQShOVG0fQA"
+CONSUMER_SECRET="HUMx3ysLeqRKkuHR6Pk5TCJdq7Jm5V8NN3db8nQzLg"
+ACCESS_TOKEN="2207254310-gsfAp1t51mnNVwLDTFguBqUuKeiYgGtARxoas0b"
+ACCESS_TOKEN_SECRET="WVULbmKoP9bZOJ6lTe6hfMngEnsBF1Ech0Rp62LcGPZ2w"
 
 # second app
 ALTERNATE_CONSUMER_KEY="xQy1LLrzXXED56UqVt1uqg"
@@ -32,12 +32,12 @@ client = Twitter::REST::Client.new do |config|
   config.access_token_secret = ACCESS_TOKEN_SECRET
 end
 
-backup_client = Twitter::REST::Client.new do |config|
-  config.consumer_key        = ALTERNATE_CONSUMER_KEY
-  config.consumer_secret     = ALTERNATE_CONSUMER_SECRET
-  config.access_token        = ALTERNATE_ACCESS_TOKEN
-  config.access_token_secret = ALTERNATE_ACCESS_TOKEN_SECRET
-end
+# backup_client = Twitter::REST::Client.new do |config|
+#   config.consumer_key        = ALTERNATE_CONSUMER_KEY
+#   config.consumer_secret     = ALTERNATE_CONSUMER_SECRET
+#   config.access_token        = ALTERNATE_ACCESS_TOKEN
+#   config.access_token_secret = ALTERNATE_ACCESS_TOKEN_SECRET
+# end
 
 scheduler = Rufus::Scheduler.new
 
@@ -69,7 +69,7 @@ def build_chyron(timestamp, content)
 end
 
 @last_timestamp = Time.now
-@time_adjust =  (160 * 60)
+@time_adjust =  (-210 * 60)
 
 tweet_data[0..400].each_with_index do |datum,index|
   next if datum.length < 5
@@ -107,7 +107,7 @@ tweet_data[0..400].each_with_index do |datum,index|
       if index % 2 == 0
         tweet = client.update(content)
       else
-        tweet = backup_client.update(content)
+        tweet = client.update(content)
       end
       id = tweet.id
       brief = content[0..19]
