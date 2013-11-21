@@ -44,20 +44,24 @@ scheduler = Rufus::Scheduler.new
 start_time=Time.now
 tweet_data=[]
 
-CSV.foreach("./TeletypeForTweeting.csv", { :col_sep => "\t" }) do |row| 
-  tweet_data << row.to_csv.chop
+quote_chars = %w(" | ~ ^ & *)
+
+file=File.open("./TeletypeForTweeting.csv")
+begin
+  tweet_data = CSV.read(file, { :col_sep => "\t", :quote_char => quote_chars.shift })
+rescue
+  quote_chars.empty? ? raise : retry
 end
 tweet_data.shift # remove CSV header row
 
 def parse(row)
-  one, two, three = "", "", ""
-  match = row.match(/^([^,]*),([^,]*),(.*)$/)
-  if ! match.nil?
-    one = match[1] || ""
-    two = match[2].gsub(/;/, ':') || ""
-    three = match[3] || ""
-  end
-  return one, two, three
+  one   = row[0] || "" 
+  two   = row[1] || ""
+  three = row[2] || ""
+  four  = row[3] || ""
+  two.gsub(/;/, ':')
+
+  return one, two, three, four
 end
 
 def scheduler.handle_exception(job, exception)
@@ -69,11 +73,11 @@ def build_chyron(timestamp, content)
 end
 
 @last_timestamp = Time.now
-@time_adjust =  (-210 * 60)
+@time_adjust =  (-30 * 60)
 
-tweet_data[0..400].each_with_index do |datum,index|
-  next if datum.length < 5
-  code,timestamp,content = parse(datum)
+tweet_data[0..709].each_with_index do |data,index|
+  next if data.to_s.length < 5
+  code,timestamp,content,url = parse(data)
 
   $stdout.puts "read #{timestamp} from row.  Last tweet time was #{@last_timestamp}"
   if timestamp == "" 
@@ -87,6 +91,10 @@ tweet_data[0..400].each_with_index do |datum,index|
    # header rows should be turned into tweet reminders
   if content == code
     content=build_chyron(timestamp,content) 
+  elsif ! url.nil?
+    if content.length < 120 and url.to_s.length < 20 
+      content = content + " #{url}"
+    end
   end
 
   # see if we're already tweeting at this time
@@ -129,7 +137,7 @@ scheduler.at start_time do
 end
 scheduler.at Time.now do
   # do something at a given point in time
-  a,b,c = parse(tweet_data[1])
+  a,b,c = tweet_data[1][0], tweet_data[1][1], tweet_data[1][2]
   t = Time.parse(b) + @time_adjust
   client.update("Preparing to broadcast! #{$hashtags} #{$link_to_exhibit}")
   s="#{$0} it is now #{Time.now}. Starting at #{t.to_s}..."
