@@ -103,7 +103,7 @@ tweet_data[0..709].each_with_index do |data,index|
       if index % 2 == 0
         tweet = client.update(content)
       else
-        tweet = backup_client.update(content)
+        tweet = client.update(content)
       end
       id = tweet.id
       brief = content[0..19]
