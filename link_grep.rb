@@ -98,7 +98,7 @@ hash = {
 }
 
 
-
+quote_chars = %w(" | ~ ^ & *)
 
 file=File.open("./TeletypeForTweeting.csv")
 begin
@@ -113,13 +113,14 @@ tweet_data.each_with_index do |row,index|
   if ! row[3].nil?
     str=row[3]
     key=str.gsub(/\#/, '')
-    str.gsub(/\##{key}$/, hash[key])
-    row[3]=str
+puts "#{index} str: #{str.to_s} #{hash[key].to_s}"
+    newstr=str.gsub(/\##{key}$/, hash[key].to_s)
+    row[3]=newstr
   end
 end
 
 out="/tmp/link_grep.csv"
-CSV.open(out, "wb") do |csv|
+CSV.open(out, "wb", {:col_sep => "\t" }) do |csv|
   tweet_data.each do |row|
     csv << row
   end
