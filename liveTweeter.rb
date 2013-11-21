@@ -12,17 +12,11 @@ ACCESS_TOKEN_URL="https://api.twitter.com/oauth/access_token"
 $hashtags="&JFK50 &UVA"
 $link_to_exhibit="http://bit.ly/1cGRk6e"
 
-# first app
+# app credentials
 CONSUMER_KEY="LwmgdHnaGllQShOVG0fQA"
 CONSUMER_SECRET="HUMx3ysLeqRKkuHR6Pk5TCJdq7Jm5V8NN3db8nQzLg"
 ACCESS_TOKEN="2207254310-gsfAp1t51mnNVwLDTFguBqUuKeiYgGtARxoas0b"
 ACCESS_TOKEN_SECRET="WVULbmKoP9bZOJ6lTe6hfMngEnsBF1Ech0Rp62LcGPZ2w"
-
-# second app
-ALTERNATE_CONSUMER_KEY="xQy1LLrzXXED56UqVt1uqg"
-ALTERNATE_CONSUMER_SECRET="LSCUB0J9FrgmyBBUn9sQcLHUIoGexBb4uRCngSnfV0"
-ALTERNATE_ACCESS_TOKEN="2190727249-qfMYHGRxBCufwjGbJquAX3Big8qpbiWBzXJVWcv"
-ALTERNATE_ACCESS_TOKEN_SECRET="yUZsxIDb0PtMCivHp1H9ofX9lyZH5tflLnPwYXTWw4EXW"
 
 
 client = Twitter::REST::Client.new do |config|
@@ -32,12 +26,6 @@ client = Twitter::REST::Client.new do |config|
   config.access_token_secret = ACCESS_TOKEN_SECRET
 end
 
-# backup_client = Twitter::REST::Client.new do |config|
-#   config.consumer_key        = ALTERNATE_CONSUMER_KEY
-#   config.consumer_secret     = ALTERNATE_CONSUMER_SECRET
-#   config.access_token        = ALTERNATE_ACCESS_TOKEN
-#   config.access_token_secret = ALTERNATE_ACCESS_TOKEN_SECRET
-# end
 
 scheduler = Rufus::Scheduler.new
 
