@@ -9,7 +9,8 @@ REQ_TOKEN_URL="https://api.twitter.com/oauth/request_token"
 AUTH_URL="https://api.twitter.com/oauth/authorize"
 ACCESS_TOKEN_URL="https://api.twitter.com/oauth/access_token"
 
-$hashtags="&JFK50 &UVA"
+$hash_tag_1="&JFK50"
+$hash_tag_2="&UVA"
 $link_to_exhibit="http://bit.ly/1cGRk6e"
 
 # app credentials
@@ -57,13 +58,13 @@ def scheduler.handle_exception(job, exception)
 end
 
 def build_chyron(timestamp, content)
-  "You are following the UPI teletype as broadcast #{timestamp} November 22nd, 1963 #{$hashtags} #{$link_to_exhibit}"
+  "You are following the UPI teletype as broadcast #{timestamp} November 22nd, 1963 #{$hash_tag_1} #{$hash_tag_2} #{$link_to_exhibit}"
 end
 
 @last_timestamp = Time.now
-@time_adjust =  (-30 * 60)
+@time_adjust =  (6 * (60 * 60)) + (17 * 60)
 
-tweet_data[0..709].each_with_index do |data,index|
+tweet_data[0..26].each_with_index do |data,index|
   next if data.to_s.length < 5
   code,timestamp,content,url = parse(data)
 
@@ -78,12 +79,20 @@ tweet_data[0..709].each_with_index do |data,index|
 
    # header rows should be turned into tweet reminders
   if content == code
-    content=build_chyron(timestamp,content) 
+    content=build_chyron(code,content) 
   elsif ! url.nil?
-    if content.length < 120 and url.to_s.length < 20 
+    if content.length < 125 
+      content = content + " #{$hash_tag_1} #{$hash_tag_2}"
+    end
+    if content.length < 115 and url.to_s.length < 24 
       content = content + " #{url}"
     end
+  else
+    if content.length < 125 
+      content = content + " #{$hash_tag_1} #{$hash_tag_2}"
+    end
   end
+  
 
   # see if we're already tweeting at this time
   if tweet_time > @last_timestamp
@@ -127,7 +136,7 @@ scheduler.at Time.now do
   # do something at a given point in time
   a,b,c = tweet_data[1][0], tweet_data[1][1], tweet_data[1][2]
   t = Time.parse(b) + @time_adjust
-  client.update("Preparing to broadcast! #{$hashtags} #{$link_to_exhibit}")
+  client.update("We'll be tweeting the 1963 UPI Teletype in a few minutes. Stay tuned! #{$hash_tag_1} #{$hash_tag_2} #{$link_to_exhibit}")
   s="#{$0} it is now #{Time.now}. Starting at #{t.to_s}..."
   $stdout.puts s
 end
