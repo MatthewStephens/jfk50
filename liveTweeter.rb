@@ -79,7 +79,7 @@ tweet_data[0..26].each_with_index do |data,index|
 
    # header rows should be turned into tweet reminders
   if content == code
-    content=build_chyron(code,content) 
+    content=build_chyron(data[1],content)
   elsif ! url.nil?
     if content.length < 125 
       content = content + " #{$hash_tag_1} #{$hash_tag_2}"
